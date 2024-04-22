@@ -1,6 +1,9 @@
-﻿namespace OrdersManager
+﻿using OrdersManager.Models;
+using OrdersManager.Services.Interfaces;
+
+namespace OrdersManager.Services
 {
-    public class Basket
+    public class BasicBasketService : IBasketService
     {
         public ICollection<Product> Products { get; set; } = new List<Product>();
 
