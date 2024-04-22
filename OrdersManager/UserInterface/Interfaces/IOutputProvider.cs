@@ -4,6 +4,8 @@
     {
         void OutputLine(string outputData);
 
+        void Output(string outputData);
+
         string GetInputLine();
     }
 }

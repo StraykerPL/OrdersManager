@@ -2,16 +2,21 @@
 
 namespace OrdersManager.UserInterface
 {
-    public class ConsoleOutputProvider : IOutputProvider
+    public sealed class ConsoleOutputProvider : IOutputProvider
     {
         public string GetInputLine()
         {
-            throw new NotImplementedException();
+            return Console.ReadLine() ?? string.Empty;
+        }
+
+        public void Output(string outputData)
+        {
+            Console.Write(outputData);
         }
 
         public void OutputLine(string outputData)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(outputData);
         }
     }
 }
