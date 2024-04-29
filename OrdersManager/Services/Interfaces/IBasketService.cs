@@ -8,7 +8,7 @@ namespace OrdersManager.Services.Interfaces
 
         void AddProductToBasket(Product productToAdd);
 
-        void RemoveProductFromBasket(int productId);
+        void RemoveProductFromBasket(string productId);
 
         double CalculateBasketValue();
     }
