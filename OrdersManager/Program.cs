@@ -46,7 +46,10 @@ namespace OrdersManager
                         break;
 
                     case "2":
+                        outputProvider.OutputLine("Podaj ID produktu:");
+                        var requestedId = inputProvider.GetInput();
 
+                        basketService.RemoveProductFromBasket(requestedId);
                         break;
 
                     case "3":
@@ -59,6 +62,8 @@ namespace OrdersManager
                         {
                             outputProvider.OutputLine(JsonSerializer.Serialize(productInBasket));
                         }
+
+                        outputProvider.OutputLine(string.Format("Wartość koszyka: {0}", basketService.CalculateBasketValue()));
 
                         break;
 
