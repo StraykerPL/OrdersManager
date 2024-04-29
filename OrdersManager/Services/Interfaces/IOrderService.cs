@@ -4,8 +4,10 @@ namespace OrdersManager.Services.Interfaces
 {
     public interface IOrderService
     {
-        Order Order { get; }
+        ICollection<Order> Orders { get; }
 
-        void DisplayOrder();
+        void DisplayOrders();
+
+        void CheckOrdersStatuses();
     }
 }

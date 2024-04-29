@@ -2,14 +2,14 @@
 {
     public interface IOrder : IBaseEntity
     {
-        string OrderingAddress { get; }
+        string OrderingAddress { get; set; }
 
-        string OrderStatus { get; set; }
+        OrderStatuses OrderStatus { get; set; }
 
-        string OrderDate { get; }
+        DateTime OrderDate { get; }
 
         ICollection<Product> OrderedProducts { get; }
 
-        string FinalizeOrder();
+        void FinalizeOrder(ICollection<Product> products);
     }
 }
