@@ -78,6 +78,7 @@ namespace OrdersManager
                         newOrder.OrderingAddress = inputProvider.GetInput();
                         newOrder.FinalizeOrder(basketService.Products);
                         orderService.Orders.Add(newOrder);
+                        basketService.Products.Clear();
 
                         break;
 
@@ -86,6 +87,9 @@ namespace OrdersManager
                         orderService.DisplayOrders();
 
                         break;
+
+                    case "6":
+                        return;
 
                     default:
                         outputProvider.OutputLine("Błędne dane wejściowe.");

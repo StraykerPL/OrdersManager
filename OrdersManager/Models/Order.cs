@@ -21,7 +21,11 @@ namespace OrdersManager.Models
                 return;
             }
 
-            OrderedProducts = products;
+            foreach (var product in products)
+            {
+                OrderedProducts.Add(product);
+            }
+
             OrderDate = DateTime.Now;
             OrderStatus = OrderStatuses.Packaging;
         }

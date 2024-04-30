@@ -18,6 +18,13 @@ namespace OrdersManager.Services
 
         public void DisplayOrders()
         {
+            if (Orders.Count < 0)
+            {
+                _outputProvider.OutputLine("Brak zamówień do wyświetlenia.");
+
+                return;
+            }
+
             foreach (var order in Orders)
             {
                 _outputProvider.OutputLine(JsonSerializer.Serialize(order));
@@ -28,7 +35,7 @@ namespace OrdersManager.Services
         {
             foreach (var order in Orders)
             {
-                if (DateTime.UtcNow > order.OrderDate.AddMinutes(5))
+                if (DateTime.UtcNow > order.OrderDate.ToUniversalTime().AddMinutes(5))
                 {
                     order.OrderStatus = OrderStatuses.Sended;
                 }
