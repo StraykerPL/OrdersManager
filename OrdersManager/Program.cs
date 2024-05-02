@@ -14,7 +14,7 @@ namespace OrdersManager
         private static readonly IOutputProvider _outputProvider = new ConsoleOutputProvider();
         private static readonly IInputProvider _inputProvider = new ConsoleInputProvider();
         private static readonly IBasketService _basketService = new BasicBasketService();
-        private static readonly IOrderService _orderService = new BasicOrderConfirmationService(_outputProvider);
+        private static readonly IOrderService _orderService = new BasicOrderService(_outputProvider);
 
         private static void CreateProduct()
         {
@@ -77,28 +77,20 @@ namespace OrdersManager
 
         private static void MakeOrder()
         {
-            if (_basketService.Products.Count is 0)
-            {
-                _outputProvider.OutputLine(MessagesConstants.NoProductsInBasketForOrderingMessage);
-
-                return;
-            }
-
-            var newOrder = new Order();
-
             _outputProvider.OutputLine(MessagesConstants.ProvideShippingAddressMessage);
-            newOrder.OrderingAddress = _inputProvider.GetInput();
+            string address = _inputProvider.GetInput();
 
-            if (newOrder.OrderingAddress is "")
+            if (address is "")
             {
                 _outputProvider.OutputLine(MessagesConstants.NoDeliveryAddressProvidedMessage);
 
                 return;
             }
 
-            newOrder.FinalizeOrder(_basketService.Products);
-            _orderService.Orders.Add(newOrder);
-            _basketService.Products.Clear();
+            if (_orderService.CreateNewOrder(address, _basketService.Products))
+            {
+                _basketService.Products.Clear();
+            }
         }
 
         private static void Main()
@@ -130,7 +122,6 @@ namespace OrdersManager
                         break;
 
                     case "5":
-                        _orderService.CheckOrdersStatuses();
                         _orderService.DisplayOrders();
 
                         break;

@@ -10,6 +10,6 @@
 
         ICollection<IProduct> OrderedProducts { get; }
 
-        void FinalizeOrder(ICollection<IProduct> products);
+        IOrderConfirmation? FinalizeOrder(ICollection<IProduct> products);
     }
 }

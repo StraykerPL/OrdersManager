@@ -1,4 +1,5 @@
 ﻿using OrdersManager.Models.Interfaces;
+using OrdersManager.UserInterface.Interfaces;
 
 namespace OrdersManager.Models
 {
@@ -14,16 +15,23 @@ namespace OrdersManager.Models
 
         public ICollection<IProduct> OrderedProducts { get; private set; } = [];
 
-        public void FinalizeOrder(ICollection<IProduct> products)
+        private readonly IOutputProvider _outputProvider;
+
+        public Order(IOutputProvider outputProvider)
+        {
+            _outputProvider = outputProvider;
+        }
+
+        public IOrderConfirmation? FinalizeOrder(ICollection<IProduct> products)
         {
             if (OrderingAddress is null or "")
             {
-                return;
+                return null;
             }
 
             if (products == null || products.Count == 0)
             {
-                return;
+                return null;
             }
 
             foreach (var product in products)
@@ -33,6 +41,8 @@ namespace OrdersManager.Models
 
             OrderDate = DateTime.UtcNow;
             OrderStatus = OrderStatuses.Packaging;
+
+            return new OrderConfirmation(this, _outputProvider);
         }
     }
 }

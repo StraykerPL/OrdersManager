@@ -18,5 +18,6 @@
         public static string NoDeliveryAddressProvidedMessage = "Błąd: nie podano adresu dostawy.";
         public static string NoProductsInBasketForOrderingMessage = "Błąd: nie można utworzyć zamówienia z pustym koszykiem.";
         public static string DoubleConvertionErrorMessage = "Błąd: podaj prawidłową liczbę z przecinkiem.";
+        public static string OrderFinalizationErrorMessage = "Błąd: nie udało się ukończyć zamówienia. Sprawdź dane i spróbuj ponownie.";
     }
 }
