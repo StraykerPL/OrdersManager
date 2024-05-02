@@ -1,12 +1,12 @@
-﻿using OrdersManager.Models;
+﻿using OrdersManager.Models.Interfaces;
 
 namespace OrdersManager.Services.Interfaces
 {
     public interface IBasketService
     {
-        ICollection<Product> Products { get; }
+        ICollection<IProduct> Products { get; }
 
-        void AddProductToBasket(Product productToAdd);
+        void AddProductToBasket(IProduct productToAdd);
 
         void RemoveProductFromBasket(string productId);
 

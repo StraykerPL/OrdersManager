@@ -1,16 +1,17 @@
 ﻿using OrdersManager.Constants;
 using OrdersManager.Models;
+using OrdersManager.Models.Interfaces;
 using OrdersManager.Services.Interfaces;
 using OrdersManager.UserInterface.Interfaces;
 using System.Text.Json;
 
 namespace OrdersManager.Services
 {
-    public class BasicOrderConfirmationService : IOrderService
+    public sealed class BasicOrderConfirmationService : IOrderService
     {
         private readonly IOutputProvider _outputProvider;
 
-        public ICollection<Order> Orders { get; } = new List<Order>();
+        public ICollection<IOrder> Orders { get; } = [];
 
         public BasicOrderConfirmationService(IOutputProvider provider)
         {
@@ -19,7 +20,7 @@ namespace OrdersManager.Services
 
         public void DisplayOrders()
         {
-            if (Orders.Count < 0)
+            if (Orders.Count is 0)
             {
                 _outputProvider.OutputLine(MessagesConstants.NoOrdersToDisplayMessage);
 

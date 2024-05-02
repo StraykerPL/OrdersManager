@@ -1,5 +1,6 @@
 ﻿using OrdersManager.Constants;
 using OrdersManager.Models;
+using OrdersManager.Providers;
 using OrdersManager.Services;
 using OrdersManager.Services.Interfaces;
 using OrdersManager.UserInterface;
@@ -24,7 +25,24 @@ namespace OrdersManager
             _outputProvider.OutputLine(MessagesConstants.AddProductDescriptionMessage);
             newProduct.Description = _inputProvider.GetInput();
             _outputProvider.OutputLine(MessagesConstants.AddProductPriceMessage);
-            newProduct.Price = Convert.ToDouble(_inputProvider.GetInput());
+
+            if (newProduct.Name is "" || newProduct.Description is "")
+            {
+                _outputProvider.OutputLine(MessagesConstants.NoDataProvidedForProductMessage);
+
+                return;
+            }
+
+            try
+            {
+                newProduct.Price = Convert.ToDouble(_inputProvider.GetInput());
+            }
+            catch (Exception)
+            {
+                _outputProvider.OutputLine(MessagesConstants.DoubleConvertionErrorMessage);
+
+                return;
+            }
 
             _basketService.AddProductToBasket(newProduct);
         }
@@ -33,6 +51,11 @@ namespace OrdersManager
         {
             _outputProvider.OutputLine(MessagesConstants.ProvideProductIdMessage);
             var requestedId = _inputProvider.GetInput();
+
+            if (requestedId is "")
+            {
+                _outputProvider.OutputLine(MessagesConstants.NoIdProvidedMessage);
+            }
 
             _basketService.RemoveProductFromBasket(requestedId);
         }
@@ -46,7 +69,7 @@ namespace OrdersManager
 
             foreach (var productInBasket in _basketService.Products)
             {
-                _outputProvider.OutputLine(JsonSerializer.Serialize(productInBasket));
+                _outputProvider.OutputLine(JsonSerializer.Serialize(productInBasket, JsonSerializerOptionsProvider.GetOptionsObject()));
             }
 
             _outputProvider.OutputLine(string.Format(MessagesConstants.BasketValueMessage, _basketService.CalculateBasketValue()));
@@ -54,10 +77,25 @@ namespace OrdersManager
 
         private static void MakeOrder()
         {
+            if (_basketService.Products.Count is 0)
+            {
+                _outputProvider.OutputLine(MessagesConstants.NoProductsInBasketForOrderingMessage);
+
+                return;
+            }
+
             var newOrder = new Order();
 
             _outputProvider.OutputLine(MessagesConstants.ProvideShippingAddressMessage);
             newOrder.OrderingAddress = _inputProvider.GetInput();
+
+            if (newOrder.OrderingAddress is "")
+            {
+                _outputProvider.OutputLine(MessagesConstants.NoDeliveryAddressProvidedMessage);
+
+                return;
+            }
+
             newOrder.FinalizeOrder(_basketService.Products);
             _orderService.Orders.Add(newOrder);
             _basketService.Products.Clear();

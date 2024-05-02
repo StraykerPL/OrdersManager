@@ -13,5 +13,10 @@
         public static string ProvideShippingAddressMessage = "Podaj adres dostawy:";
         public static string WrongImputDataMessage = "Błędne dane wejściowe.";
         public static string NoOrdersToDisplayMessage = "Brak zamówień do wyświetlenia.";
+        public static string NoDataProvidedForProductMessage = "Błąd: nazwa lub opis produktu są puste.";
+        public static string NoIdProvidedMessage = "Błąd: nie podano ID.";
+        public static string NoDeliveryAddressProvidedMessage = "Błąd: nie podano adresu dostawy.";
+        public static string NoProductsInBasketForOrderingMessage = "Błąd: nie można utworzyć zamówienia z pustym koszykiem.";
+        public static string DoubleConvertionErrorMessage = "Błąd: podaj prawidłową liczbę z przecinkiem.";
     }
 }

@@ -12,10 +12,15 @@ namespace OrdersManager.Models
 
         public DateTime OrderDate { get; set; } = DateTime.MinValue;
 
-        public ICollection<Product> OrderedProducts { get; private set; } = new List<Product>();
+        public ICollection<IProduct> OrderedProducts { get; private set; } = [];
 
-        public void FinalizeOrder(ICollection<Product> products)
+        public void FinalizeOrder(ICollection<IProduct> products)
         {
+            if (OrderingAddress is null or "")
+            {
+                return;
+            }
+
             if (products == null || products.Count == 0)
             {
                 return;
@@ -26,7 +31,7 @@ namespace OrdersManager.Models
                 OrderedProducts.Add(product);
             }
 
-            OrderDate = DateTime.Now;
+            OrderDate = DateTime.UtcNow;
             OrderStatus = OrderStatuses.Packaging;
         }
     }
