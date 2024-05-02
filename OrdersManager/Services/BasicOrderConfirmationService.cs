@@ -1,4 +1,5 @@
-﻿using OrdersManager.Models;
+﻿using OrdersManager.Constants;
+using OrdersManager.Models;
 using OrdersManager.Services.Interfaces;
 using OrdersManager.UserInterface.Interfaces;
 using System.Text.Json;
@@ -20,7 +21,7 @@ namespace OrdersManager.Services
         {
             if (Orders.Count < 0)
             {
-                _outputProvider.OutputLine("Brak zamówień do wyświetlenia.");
+                _outputProvider.OutputLine(MessagesConstants.NoOrdersToDisplayMessage);
 
                 return;
             }

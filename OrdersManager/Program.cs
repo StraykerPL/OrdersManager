@@ -1,4 +1,5 @@
-﻿using OrdersManager.Models;
+﻿using OrdersManager.Constants;
+using OrdersManager.Models;
 using OrdersManager.Services;
 using OrdersManager.Services.Interfaces;
 using OrdersManager.UserInterface;
@@ -16,19 +17,12 @@ namespace OrdersManager
             IBasketService basketService = new BasicBasketService();
             IOrderService orderService = new BasicOrderConfirmationService(outputProvider);
 
-            outputProvider.OutputLine("Witamy - OrdersManager");
+            outputProvider.OutputLine(MessagesConstants.WelcomeMessage);
 
             string userInput = "a";
             while (Convert.ToChar(userInput) != '6')
             {
-                outputProvider.OutputLine("\nOpcje działania:");
-                outputProvider.OutputLine("1. Dodaj produkt do koszyka,");
-                outputProvider.OutputLine("2. Usuń produkt z koszyka,");
-                outputProvider.OutputLine("3. Wyświetl stan koszyka,");
-                outputProvider.OutputLine("4. Zrealizuj zamówienie z koszyka,");
-                outputProvider.OutputLine("5. Wyświetl zamówienia,");
-                outputProvider.OutputLine("6. Zakończ program,\n");
-                outputProvider.Output("Proszę wybrać numer: ");
+                outputProvider.Output(MessagesConstants.OptionsMessage);
 
                 userInput = inputProvider.GetInput();
 
@@ -37,11 +31,11 @@ namespace OrdersManager
                     case "1":
                         var newProduct = new Product();
 
-                        outputProvider.OutputLine("Podaj nazwę produktu:");
+                        outputProvider.OutputLine(MessagesConstants.AddProductNameMessage);
                         newProduct.Name = inputProvider.GetInput();
-                        outputProvider.OutputLine("Podaj opis produktu:");
+                        outputProvider.OutputLine(MessagesConstants.AddProductDescriptionMessage);
                         newProduct.Description = inputProvider.GetInput();
-                        outputProvider.OutputLine("Podaj cenę produktu:");
+                        outputProvider.OutputLine(MessagesConstants.AddProductPriceMessage);
                         newProduct.Price = Convert.ToDouble(inputProvider.GetInput());
 
                         basketService.AddProductToBasket(newProduct);
@@ -49,7 +43,7 @@ namespace OrdersManager
                         break;
 
                     case "2":
-                        outputProvider.OutputLine("Podaj ID produktu:");
+                        outputProvider.OutputLine(MessagesConstants.ProvideProductIdMessage);
                         var requestedId = inputProvider.GetInput();
 
                         basketService.RemoveProductFromBasket(requestedId);
@@ -59,7 +53,7 @@ namespace OrdersManager
                     case "3":
                         if (basketService.Products.Count is 0)
                         {
-                            outputProvider.OutputLine("Koszyk jest pusty.");
+                            outputProvider.OutputLine(MessagesConstants.BasketEmptyMessage);
                         }
 
                         foreach (var productInBasket in basketService.Products)
@@ -67,14 +61,14 @@ namespace OrdersManager
                             outputProvider.OutputLine(JsonSerializer.Serialize(productInBasket));
                         }
 
-                        outputProvider.OutputLine(string.Format("Wartość koszyka: {0}", basketService.CalculateBasketValue()));
+                        outputProvider.OutputLine(string.Format(MessagesConstants.BasketValueMessage, basketService.CalculateBasketValue()));
 
                         break;
 
                     case "4":
                         var newOrder = new Order();
 
-                        outputProvider.OutputLine("Podaj adres dostawy:");
+                        outputProvider.OutputLine(MessagesConstants.ProvideShippingAddressMessage);
                         newOrder.OrderingAddress = inputProvider.GetInput();
                         newOrder.FinalizeOrder(basketService.Products);
                         orderService.Orders.Add(newOrder);
@@ -92,7 +86,7 @@ namespace OrdersManager
                         return;
 
                     default:
-                        outputProvider.OutputLine("Błędne dane wejściowe.");
+                        outputProvider.OutputLine(MessagesConstants.WrongImputDataMessage);
 
                         break;
                 }
