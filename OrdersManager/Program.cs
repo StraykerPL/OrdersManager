@@ -10,75 +10,90 @@ namespace OrdersManager
 {
     internal class Program
     {
+        private static readonly IOutputProvider _outputProvider = new ConsoleOutputProvider();
+        private static readonly IInputProvider _inputProvider = new ConsoleInputProvider();
+        private static readonly IBasketService _basketService = new BasicBasketService();
+        private static readonly IOrderService _orderService = new BasicOrderConfirmationService(_outputProvider);
+
+        private static void CreateProduct()
+        {
+            var newProduct = new Product();
+
+            _outputProvider.OutputLine(MessagesConstants.AddProductNameMessage);
+            newProduct.Name = _inputProvider.GetInput();
+            _outputProvider.OutputLine(MessagesConstants.AddProductDescriptionMessage);
+            newProduct.Description = _inputProvider.GetInput();
+            _outputProvider.OutputLine(MessagesConstants.AddProductPriceMessage);
+            newProduct.Price = Convert.ToDouble(_inputProvider.GetInput());
+
+            _basketService.AddProductToBasket(newProduct);
+        }
+
+        private static void DeleteProduct()
+        {
+            _outputProvider.OutputLine(MessagesConstants.ProvideProductIdMessage);
+            var requestedId = _inputProvider.GetInput();
+
+            _basketService.RemoveProductFromBasket(requestedId);
+        }
+
+        private static void ShowBasket()
+        {
+            if (_basketService.Products.Count is 0)
+            {
+                _outputProvider.OutputLine(MessagesConstants.BasketEmptyMessage);
+            }
+
+            foreach (var productInBasket in _basketService.Products)
+            {
+                _outputProvider.OutputLine(JsonSerializer.Serialize(productInBasket));
+            }
+
+            _outputProvider.OutputLine(string.Format(MessagesConstants.BasketValueMessage, _basketService.CalculateBasketValue()));
+        }
+
+        private static void MakeOrder()
+        {
+            var newOrder = new Order();
+
+            _outputProvider.OutputLine(MessagesConstants.ProvideShippingAddressMessage);
+            newOrder.OrderingAddress = _inputProvider.GetInput();
+            newOrder.FinalizeOrder(_basketService.Products);
+            _orderService.Orders.Add(newOrder);
+            _basketService.Products.Clear();
+        }
+
         private static void Main()
         {
-            IOutputProvider outputProvider = new ConsoleOutputProvider();
-            IInputProvider inputProvider = new ConsoleInputProvider();
-            IBasketService basketService = new BasicBasketService();
-            IOrderService orderService = new BasicOrderConfirmationService(outputProvider);
+            _outputProvider.OutputLine(MessagesConstants.WelcomeMessage);
 
-            outputProvider.OutputLine(MessagesConstants.WelcomeMessage);
-
-            string userInput = "a";
-            while (Convert.ToChar(userInput) != '6')
+            string userInput;
+            while (true)
             {
-                outputProvider.Output(MessagesConstants.OptionsMessage);
+                _outputProvider.Output(MessagesConstants.OptionsMessage);
 
-                userInput = inputProvider.GetInput();
-
+                userInput = _inputProvider.GetInput();
                 switch (userInput)
                 {
                     case "1":
-                        var newProduct = new Product();
-
-                        outputProvider.OutputLine(MessagesConstants.AddProductNameMessage);
-                        newProduct.Name = inputProvider.GetInput();
-                        outputProvider.OutputLine(MessagesConstants.AddProductDescriptionMessage);
-                        newProduct.Description = inputProvider.GetInput();
-                        outputProvider.OutputLine(MessagesConstants.AddProductPriceMessage);
-                        newProduct.Price = Convert.ToDouble(inputProvider.GetInput());
-
-                        basketService.AddProductToBasket(newProduct);
-
+                        CreateProduct();
                         break;
 
                     case "2":
-                        outputProvider.OutputLine(MessagesConstants.ProvideProductIdMessage);
-                        var requestedId = inputProvider.GetInput();
-
-                        basketService.RemoveProductFromBasket(requestedId);
-
+                        DeleteProduct();
                         break;
 
                     case "3":
-                        if (basketService.Products.Count is 0)
-                        {
-                            outputProvider.OutputLine(MessagesConstants.BasketEmptyMessage);
-                        }
-
-                        foreach (var productInBasket in basketService.Products)
-                        {
-                            outputProvider.OutputLine(JsonSerializer.Serialize(productInBasket));
-                        }
-
-                        outputProvider.OutputLine(string.Format(MessagesConstants.BasketValueMessage, basketService.CalculateBasketValue()));
-
+                        ShowBasket();
                         break;
 
                     case "4":
-                        var newOrder = new Order();
-
-                        outputProvider.OutputLine(MessagesConstants.ProvideShippingAddressMessage);
-                        newOrder.OrderingAddress = inputProvider.GetInput();
-                        newOrder.FinalizeOrder(basketService.Products);
-                        orderService.Orders.Add(newOrder);
-                        basketService.Products.Clear();
-
+                        MakeOrder();
                         break;
 
                     case "5":
-                        orderService.CheckOrdersStatuses();
-                        orderService.DisplayOrders();
+                        _orderService.CheckOrdersStatuses();
+                        _orderService.DisplayOrders();
 
                         break;
 
@@ -86,7 +101,7 @@ namespace OrdersManager
                         return;
 
                     default:
-                        outputProvider.OutputLine(MessagesConstants.WrongImputDataMessage);
+                        _outputProvider.OutputLine(MessagesConstants.WrongImputDataMessage);
 
                         break;
                 }
