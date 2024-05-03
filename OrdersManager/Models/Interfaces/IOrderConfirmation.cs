@@ -4,6 +4,8 @@
     {
         IOrder AssignedOrder { get; }
 
+        double TotalValue { get; }
+
         void DisplayConfirmationInfo();
     }
 }
