@@ -10,9 +10,9 @@ namespace OrdersManager.Services
 {
     public sealed class BasicOrderService : IOrderService
     {
-        private readonly IOutputProvider _outputProvider;
-
         public ICollection<IOrderConfirmation> OrdersConfirmations { get; } = [];
+
+        private readonly IOutputProvider _outputProvider;
 
         public BasicOrderService(IOutputProvider provider)
         {

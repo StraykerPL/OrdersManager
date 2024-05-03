@@ -1,5 +1,8 @@
-﻿using OrdersManager.Models.Interfaces;
+﻿using OrdersManager.Constants;
+using OrdersManager.Models.Interfaces;
 using OrdersManager.UserInterface.Interfaces;
+using System.Timers;
+using Timer = System.Timers.Timer;
 
 namespace OrdersManager.Models
 {
@@ -11,15 +14,22 @@ namespace OrdersManager.Models
 
         public OrderStatuses OrderStatus { get; set; } = OrderStatuses.Ordering;
 
-        public DateTime OrderDate { get; set; } = DateTime.MinValue;
+        public DateTime OrderDate { get; private set; } = DateTime.MinValue;
 
         public ICollection<IProduct> OrderedProducts { get; private set; } = [];
 
         private readonly IOutputProvider _outputProvider;
+        private readonly Timer _timer;
+        private const double OrderCompletionMilisecondsTiming = 300000;
 
         public Order(IOutputProvider outputProvider)
         {
             _outputProvider = outputProvider;
+            _timer = new Timer(OrderCompletionMilisecondsTiming)
+            {
+                AutoReset = false
+            };
+            _timer.Elapsed += OnTimePassed;
         }
 
         public IOrderConfirmation? FinalizeOrder(ICollection<IProduct> products)
@@ -29,7 +39,7 @@ namespace OrdersManager.Models
                 return null;
             }
 
-            if (products == null || products.Count == 0)
+            if (products is null || products.Count is 0)
             {
                 return null;
             }
@@ -41,8 +51,17 @@ namespace OrdersManager.Models
 
             OrderDate = DateTime.UtcNow;
             OrderStatus = OrderStatuses.Packaging;
+            _outputProvider.OutputLine(MessagesConstants.OrderFinalizationSuccessMessage);
+            _timer.Start();
 
             return new OrderConfirmation(this, _outputProvider);
+        }
+
+        private void OnTimePassed(object? source, ElapsedEventArgs e)
+        {
+            _timer.Stop();
+            _timer.Dispose();
+            OrderStatus = OrderStatuses.Sended;
         }
     }
 }
