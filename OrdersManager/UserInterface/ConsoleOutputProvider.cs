@@ -2,7 +2,7 @@
 
 namespace OrdersManager.UserInterface
 {
-    public sealed class ConsoleOutputProvider : IOutputProvider
+    internal sealed class ConsoleOutputProvider : IOutputProvider
     {
         public void Output(string outputData)
         {

@@ -1,13 +1,13 @@
-﻿using OrdersManager.Models;
+﻿using OrdersManager.Models.Interfaces;
 
 namespace OrdersManager.Services.Interfaces
 {
     public interface IOrderService
     {
-        ICollection<Order> Orders { get; }
+        ICollection<IOrderConfirmation> OrdersConfirmations { get; }
+
+        bool CreateNewOrder(string address, ICollection<IProduct> products);
 
         void DisplayOrders();
-
-        void CheckOrdersStatuses();
     }
 }

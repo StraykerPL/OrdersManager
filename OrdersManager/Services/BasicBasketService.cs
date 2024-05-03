@@ -1,13 +1,13 @@
-﻿using OrdersManager.Models;
+﻿using OrdersManager.Models.Interfaces;
 using OrdersManager.Services.Interfaces;
 
 namespace OrdersManager.Services
 {
-    public class BasicBasketService : IBasketService
+    public sealed class BasicBasketService : IBasketService
     {
-        public ICollection<Product> Products { get; private set; } = new List<Product>();
+        public ICollection<IProduct> Products { get; private set; } = [];
 
-        public void AddProductToBasket(Product productToAdd)
+        public void AddProductToBasket(IProduct productToAdd)
         {
             if (productToAdd is null || Products.Contains(productToAdd))
             {

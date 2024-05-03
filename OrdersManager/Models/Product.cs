@@ -4,7 +4,7 @@ namespace OrdersManager.Models
 {
     public class Product : IProduct
     {
-        public string Id { get; private set; } = Guid.NewGuid().ToString();
+        public string Id { get; } = Guid.NewGuid().ToString();
 
         public string Name { get; set; } = string.Empty;
 

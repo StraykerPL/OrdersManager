@@ -8,8 +8,8 @@
 
         DateTime OrderDate { get; }
 
-        ICollection<Product> OrderedProducts { get; }
+        ICollection<IProduct> OrderedProducts { get; }
 
-        void FinalizeOrder(ICollection<Product> products);
+        IOrderConfirmation? FinalizeOrder(ICollection<IProduct> products);
     }
 }

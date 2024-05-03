@@ -1,4 +1,5 @@
 ﻿using OrdersManager.Models.Interfaces;
+using OrdersManager.UserInterface.Interfaces;
 
 namespace OrdersManager.Models
 {
@@ -12,13 +13,25 @@ namespace OrdersManager.Models
 
         public DateTime OrderDate { get; set; } = DateTime.MinValue;
 
-        public ICollection<Product> OrderedProducts { get; private set; } = new List<Product>();
+        public ICollection<IProduct> OrderedProducts { get; private set; } = [];
 
-        public void FinalizeOrder(ICollection<Product> products)
+        private readonly IOutputProvider _outputProvider;
+
+        public Order(IOutputProvider outputProvider)
         {
+            _outputProvider = outputProvider;
+        }
+
+        public IOrderConfirmation? FinalizeOrder(ICollection<IProduct> products)
+        {
+            if (OrderingAddress is null or "")
+            {
+                return null;
+            }
+
             if (products == null || products.Count == 0)
             {
-                return;
+                return null;
             }
 
             foreach (var product in products)
@@ -26,8 +39,10 @@ namespace OrdersManager.Models
                 OrderedProducts.Add(product);
             }
 
-            OrderDate = DateTime.Now;
+            OrderDate = DateTime.UtcNow;
             OrderStatus = OrderStatuses.Packaging;
+
+            return new OrderConfirmation(this, _outputProvider);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using OrdersManager.Models;
+﻿using OrdersManager.Constants;
+using OrdersManager.Models;
+using OrdersManager.Providers;
 using OrdersManager.Services;
 using OrdersManager.Services.Interfaces;
 using OrdersManager.UserInterface;
@@ -9,82 +11,118 @@ namespace OrdersManager
 {
     internal class Program
     {
+        private static readonly IOutputProvider _outputProvider = new ConsoleOutputProvider();
+        private static readonly IInputProvider _inputProvider = new ConsoleInputProvider();
+        private static readonly IBasketService _basketService = new BasicBasketService();
+        private static readonly IOrderService _orderService = new BasicOrderService(_outputProvider);
+
+        private static void CreateProduct()
+        {
+            var newProduct = new Product();
+
+            _outputProvider.OutputLine(MessagesConstants.AddProductNameMessage);
+            newProduct.Name = _inputProvider.GetInput();
+            _outputProvider.OutputLine(MessagesConstants.AddProductDescriptionMessage);
+            newProduct.Description = _inputProvider.GetInput();
+            _outputProvider.OutputLine(MessagesConstants.AddProductPriceMessage);
+
+            if (newProduct.Name is "" || newProduct.Description is "")
+            {
+                _outputProvider.OutputLine(MessagesConstants.NoDataProvidedForProductMessage);
+
+                return;
+            }
+
+            try
+            {
+                newProduct.Price = Convert.ToDouble(_inputProvider.GetInput());
+            }
+            catch (Exception)
+            {
+                _outputProvider.OutputLine(MessagesConstants.DoubleConvertionErrorMessage);
+
+                return;
+            }
+
+            _basketService.AddProductToBasket(newProduct);
+        }
+
+        private static void DeleteProduct()
+        {
+            _outputProvider.OutputLine(MessagesConstants.ProvideProductIdMessage);
+            var requestedId = _inputProvider.GetInput();
+
+            if (requestedId is "")
+            {
+                _outputProvider.OutputLine(MessagesConstants.NoIdProvidedMessage);
+            }
+
+            _basketService.RemoveProductFromBasket(requestedId);
+        }
+
+        private static void ShowBasket()
+        {
+            if (_basketService.Products.Count is 0)
+            {
+                _outputProvider.OutputLine(MessagesConstants.BasketEmptyMessage);
+            }
+
+            foreach (var productInBasket in _basketService.Products)
+            {
+                _outputProvider.OutputLine(JsonSerializer.Serialize(productInBasket, JsonSerializerOptionsProvider.GetOptionsObject()));
+            }
+
+            _outputProvider.OutputLine(string.Format(MessagesConstants.BasketValueMessage, _basketService.CalculateBasketValue()));
+        }
+
+        private static void MakeOrder()
+        {
+            _outputProvider.OutputLine(MessagesConstants.ProvideShippingAddressMessage);
+            string address = _inputProvider.GetInput();
+
+            if (address is "")
+            {
+                _outputProvider.OutputLine(MessagesConstants.NoDeliveryAddressProvidedMessage);
+
+                return;
+            }
+
+            if (_orderService.CreateNewOrder(address, _basketService.Products))
+            {
+                _basketService.Products.Clear();
+            }
+        }
+
         private static void Main()
         {
-            IOutputProvider outputProvider = new ConsoleOutputProvider();
-            IInputProvider inputProvider = new ConsoleInputProvider();
-            IBasketService basketService = new BasicBasketService();
-            IOrderService orderService = new BasicOrderConfirmationService(outputProvider);
+            _outputProvider.OutputLine(MessagesConstants.WelcomeMessage);
 
-            outputProvider.OutputLine("Witamy - OrdersManager");
-
-            string userInput = "a";
-            while (Convert.ToChar(userInput) != '6')
+            string userInput;
+            while (true)
             {
-                outputProvider.OutputLine("\nOpcje działania:");
-                outputProvider.OutputLine("1. Dodaj produkt do koszyka,");
-                outputProvider.OutputLine("2. Usuń produkt z koszyka,");
-                outputProvider.OutputLine("3. Wyświetl stan koszyka,");
-                outputProvider.OutputLine("4. Zrealizuj zamówienie z koszyka,");
-                outputProvider.OutputLine("5. Wyświetl zamówienia,");
-                outputProvider.OutputLine("6. Zakończ program,\n");
-                outputProvider.Output("Proszę wybrać numer: ");
+                _outputProvider.Output(MessagesConstants.OptionsMessage);
 
-                userInput = inputProvider.GetInput();
-
+                userInput = _inputProvider.GetInput();
                 switch (userInput)
                 {
                     case "1":
-                        var newProduct = new Product();
-
-                        outputProvider.OutputLine("Podaj nazwę produktu:");
-                        newProduct.Name = inputProvider.GetInput();
-                        outputProvider.OutputLine("Podaj opis produktu:");
-                        newProduct.Description = inputProvider.GetInput();
-                        outputProvider.OutputLine("Podaj cenę produktu:");
-                        newProduct.Price = Convert.ToDouble(inputProvider.GetInput());
-
-                        basketService.AddProductToBasket(newProduct);
-
+                        CreateProduct();
                         break;
 
                     case "2":
-                        outputProvider.OutputLine("Podaj ID produktu:");
-                        var requestedId = inputProvider.GetInput();
-
-                        basketService.RemoveProductFromBasket(requestedId);
-
+                        DeleteProduct();
                         break;
 
                     case "3":
-                        if (basketService.Products.Count is 0)
-                        {
-                            outputProvider.OutputLine("Koszyk jest pusty.");
-                        }
-
-                        foreach (var productInBasket in basketService.Products)
-                        {
-                            outputProvider.OutputLine(JsonSerializer.Serialize(productInBasket));
-                        }
-
-                        outputProvider.OutputLine(string.Format("Wartość koszyka: {0}", basketService.CalculateBasketValue()));
-
+                        ShowBasket();
                         break;
 
                     case "4":
-                        var newOrder = new Order();
-
-                        outputProvider.OutputLine("Podaj adres dostawy:");
-                        newOrder.OrderingAddress = inputProvider.GetInput();
-                        newOrder.FinalizeOrder(basketService.Products);
-                        orderService.Orders.Add(newOrder);
-                        basketService.Products.Clear();
-
+                        MakeOrder();
                         break;
 
                     case "5":
-                        orderService.CheckOrdersStatuses();
-                        orderService.DisplayOrders();
+                        _orderService.DisplayOrders();
 
                         break;
 
@@ -92,7 +130,7 @@ namespace OrdersManager
                         return;
 
                     default:
-                        outputProvider.OutputLine("Błędne dane wejściowe.");
+                        _outputProvider.OutputLine(MessagesConstants.WrongImputDataMessage);
 
                         break;
                 }

@@ -2,7 +2,7 @@
 
 namespace OrdersManager.UserInterface
 {
-    public sealed class ConsoleInputProvider : IInputProvider
+    internal sealed class ConsoleInputProvider : IInputProvider
     {
         public string GetInput()
         {
